@@ -30,8 +30,8 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
   Stream<ListEvent> get events => _events.stream;
   ListEvent get lastEvent => _events.value;
 
-  ListBloc(
-    ListState<T, F> state, {
+  ListBloc({
+    ListState<T, F> state,
     int viewCount = 20,
     int debounce = 200,
     bool allowDuplicate = false,
@@ -40,7 +40,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
         this._viewCount = viewCount,
         this._allowDuplicate = allowDuplicate,
         this._debug = debug,
-        super(state);
+        super(state ?? ListState<T, F>(items: []));
 
   @override
   Future<void> close() {
@@ -98,7 +98,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
         if (event.clear) {
           r = state.copyWith(loading: true, items: []);
           Future.delayed(Duration(milliseconds: 10), () async {
-            add(FetchItems<F>(state.filter));
+            add(FetchItems<F>(filter: state.filter));
           });
         } else {
           var count = state.items.length;
@@ -209,7 +209,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
 
   fetchNextPage() {
     if (!state.hasReachedMax) {
-      add(FetchItems(state.filter));
+      add(FetchItems(filter: state.filter));
     }
   }
 }

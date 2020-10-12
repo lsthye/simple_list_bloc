@@ -12,7 +12,7 @@ class DemoListView extends StatefulWidget {
 
 class _DemoListViewState extends State<DemoListView> {
   // the list bloc
-  final DemoListBloc listBloc = DemoListBloc(ListState(items: []));
+  final DemoListBloc listBloc = DemoListBloc();
 
   // selection bloc to keep track of selection mode and list of selected item
   final ListSelectionBloc<DemoModel> selectionBloc = ListSelectionBloc(SelectionState());
@@ -22,7 +22,7 @@ class _DemoListViewState extends State<DemoListView> {
 
   @override
   void initState() {
-    listBloc.add(FetchItems<String>(""));
+    listBloc.add(FetchItems<String>(filter: ""));
     selectionBloc.selectItems([DemoModel("en", "English")]);
     super.initState();
   }
@@ -55,7 +55,7 @@ class _DemoListViewState extends State<DemoListView> {
         children: [
           TextField(
             onChanged: (value) {
-              listBloc.add(FetchItems<String>(value, clear: true));
+              listBloc.add(FetchItems<String>(filter: value, clear: true));
             },
           ),
           Expanded(

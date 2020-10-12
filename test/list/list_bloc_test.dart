@@ -5,7 +5,7 @@ import 'package:simple_list_bloc/src/bloc/list/list_state.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 class SortIntListBloc extends ListBloc<int, bool> {
-  SortIntListBloc(ListState<int, bool> state) : super(state, debounce: 0);
+  SortIntListBloc(ListState<int, bool> state) : super(state: state, debounce: 0);
 
   @override
   Future<List<int>> sortItems(List<int> items, {List<int> newItem}) {
@@ -35,7 +35,7 @@ class SortIntListBloc extends ListBloc<int, bool> {
 }
 
 class IntListBloc extends ListBloc<int, bool> {
-  IntListBloc(ListState<int, bool> state) : super(state, debounce: 0);
+  IntListBloc(ListState<int, bool> state) : super(state: state, debounce: 0);
 }
 
 class CustomEvent extends ListEvent {
@@ -66,24 +66,24 @@ void main() {
     blocTest<SortIntListBloc, ListState>(
       'should changed to initialized state after first event',
       build: () => SortIntListBloc(ListState(items: [])),
-      act: (bloc) => bloc.add(FetchItems(false)),
+      act: (bloc) => bloc.add(FetchItems(filter: false)),
       verify: (bloc) async {
         expect(bloc.state.initialized, equals(true));
         expect(bloc.state.items.length, equals(20));
         expect(bloc.state.hasReachedMax, equals(false));
-        expect("${bloc.lastEvent.runtimeType}", equals("${FetchItems(false).runtimeType}"));
+        expect("${bloc.lastEvent.runtimeType}", equals("${FetchItems(filter: false).runtimeType}"));
       },
     );
 
     blocTest<SortIntListBloc, ListState>(
       'should append list',
       build: () => SortIntListBloc(ListState(items: [5, 6, 7])),
-      act: (bloc) => bloc.add(FetchItems(false)),
+      act: (bloc) => bloc.add(FetchItems(filter: false)),
       verify: (bloc) async {
         expect(bloc.state.initialized, equals(true));
         expect(bloc.state.items.length, equals(23));
         expect(bloc.state.hasReachedMax, equals(false));
-        expect("${bloc.lastEvent.runtimeType}", equals("${FetchItems(false).runtimeType}"));
+        expect("${bloc.lastEvent.runtimeType}", equals("${FetchItems(filter: false).runtimeType}"));
       },
     );
 
@@ -95,19 +95,19 @@ void main() {
         expect(bloc.state.initialized, equals(true));
         expect(bloc.state.items.length, equals(23));
         expect(bloc.state.hasReachedMax, equals(false));
-        expect("${bloc.lastEvent.runtimeType}", equals("${FetchItems(false).runtimeType}"));
+        expect("${bloc.lastEvent.runtimeType}", equals("${FetchItems(filter: false).runtimeType}"));
       },
     );
 
     blocTest<SortIntListBloc, ListState>(
       'should not append list when fetch items with clear flag',
       build: () => SortIntListBloc(ListState(items: [5, 6, 7])),
-      act: (bloc) => bloc.add(FetchItems(false, clear: true)),
+      act: (bloc) => bloc.add(FetchItems(filter: false, clear: true)),
       verify: (bloc) async {
         expect(bloc.state.initialized, equals(true));
         expect(bloc.state.items.length, equals(20));
         expect(bloc.state.hasReachedMax, equals(false));
-        expect("${bloc.lastEvent.runtimeType}", equals("${FetchItems(false).runtimeType}"));
+        expect("${bloc.lastEvent.runtimeType}", equals("${FetchItems(filter: false).runtimeType}"));
       },
     );
 
@@ -173,7 +173,7 @@ void main() {
 
     blocTest<ListBloc, ListState>(
       'should not add duplicate items',
-      build: () => ListBloc(ListState(items: [1, 2, 3]), debounce: 0),
+      build: () => ListBloc(state: ListState(items: [1, 2, 3]), debounce: 0),
       act: (bloc) => bloc.add(AddItems([3, 4, 5], replace: false)),
       verify: (bloc) async {
         expect(bloc.state.items, equals([1, 2, 3, 4, 5]));
@@ -183,7 +183,7 @@ void main() {
 
     blocTest<ListBloc, ListState>(
       'should not have duplicate when add item with replace flag',
-      build: () => ListBloc(ListState(items: [1, 2, 3]), debounce: 0, allowDuplicate: true),
+      build: () => ListBloc(state: ListState(items: [1, 2, 3]), debounce: 0, allowDuplicate: true),
       act: (bloc) => bloc.add(AddItems([3, 4, 5], replace: true)),
       verify: (bloc) async {
         expect(bloc.state.items, equals([1, 2, 3, 4, 5]));
@@ -193,7 +193,7 @@ void main() {
 
     blocTest<ListBloc, ListState>(
       'should add duplicate items',
-      build: () => ListBloc(ListState(items: [1, 2, 3]), debounce: 0, allowDuplicate: true),
+      build: () => ListBloc(state: ListState(items: [1, 2, 3]), debounce: 0, allowDuplicate: true),
       act: (bloc) => bloc.add(AddItems([3, 4, 5], replace: false)),
       verify: (bloc) async {
         expect(bloc.state.items, equals([1, 2, 3, 3, 4, 5]));
@@ -203,7 +203,7 @@ void main() {
 
     blocTest<ListBloc, ListState>(
       'should remove items',
-      build: () => ListBloc(ListState(items: [1, 2, 3, 4, 5]), debounce: 0, allowDuplicate: true),
+      build: () => ListBloc(state: ListState(items: [1, 2, 3, 4, 5]), debounce: 0, allowDuplicate: true),
       act: (bloc) => bloc.add(RemoveItems([3, 5, 6])),
       verify: (bloc) async {
         expect(bloc.state.items, equals([1, 2, 4]));
@@ -213,7 +213,7 @@ void main() {
 
     blocTest<ListBloc, ListState>(
       'should throw error when event not implemented',
-      build: () => ListBloc(ListState(items: []), debounce: 0),
+      build: () => ListBloc(debounce: 0),
       act: (bloc) => bloc.add(ThrowErrorEvent()),
       verify: (bloc) async {
         expect(bloc.state.error,
@@ -244,7 +244,7 @@ void main() {
 
     blocTest<ListBloc, ListState>(
       'debounce should only handle the last event',
-      build: () => ListBloc(ListState(items: []), debounce: 80),
+      build: () => ListBloc(debounce: 80),
       act: (bloc) {
         bloc.add(AddItems([0]));
         bloc.add(AddItems([1]));

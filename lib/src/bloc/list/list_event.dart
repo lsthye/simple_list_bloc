@@ -78,7 +78,7 @@ class FetchItems<F> extends ListEvent {
   // clear and fetch from begining
   final bool clear;
 
-  FetchItems(this.filter, {this.clear = false});
+  FetchItems({this.filter, this.clear = false});
 
   @override
   String toString() => '${this.runtimeType} { filter: ${filter.toString()} }';

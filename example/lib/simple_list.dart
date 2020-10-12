@@ -17,8 +17,7 @@ class SimpleListDataModel extends Equatable {
 
 /// List bloc
 class SimpleListBloc extends ListBloc<SimpleListDataModel, dynamic> {
-  SimpleListBloc(ListState<SimpleListDataModel, dynamic> state)
-      : super(state, viewCount: -1, debounce: 50, debug: true);
+  SimpleListBloc() : super(viewCount: -1, debounce: 50, debug: true);
 
   @override
   Future<List<SimpleListDataModel>> fetchItems(filter, int skip, int count) async {
@@ -42,7 +41,7 @@ class SimpleList extends StatefulWidget {
 
 class _SimpleListState extends State<SimpleList> {
   /// The bloc
-  final SimpleListBloc bloc = SimpleListBloc(ListState(items: [], initialized: false));
+  final SimpleListBloc bloc = SimpleListBloc();
 
   @override
   void dispose() {
@@ -52,7 +51,7 @@ class _SimpleListState extends State<SimpleList> {
 
   @override
   void initState() {
-    bloc.add(FetchItems(null));
+    bloc.add(FetchItems());
     super.initState();
   }
 

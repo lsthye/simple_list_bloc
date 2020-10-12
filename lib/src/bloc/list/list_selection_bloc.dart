@@ -4,12 +4,11 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:simple_list_bloc/simple_list_bloc.dart';
 import 'package:simple_list_bloc/src/bloc/list/list_bloc.dart';
-import 'package:simple_list_bloc/src/bloc/list/list_state.dart';
 
 /// Cubit to control list's selection
 class ListSelectionBloc<T> extends Cubit<SelectionState<T>> {
   /// bloc to hold selected items
-  final ListBloc<T, String> selectedItems = ListBloc(ListState(items: []), debounce: 0);
+  final ListBloc<T, String> selectedItems = ListBloc(debounce: 0);
 
   /// map for faster lookup for selected items
   final Map<T, bool> selectedMap = {};

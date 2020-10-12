@@ -37,17 +37,17 @@ void main() {
 
   group('fetch event', () {
     test('should not be equal even when both event have same filter, retry won\'t work if it was equals', () {
-      var first = FetchItems<int>(1);
-      var second = FetchItems<int>(1);
+      var first = FetchItems<int>(filter: 1);
+      var second = FetchItems<int>(filter: 1);
       expect(first, isNot(equals(second)));
     });
     test('should not be equal when both event have different filter', () {
-      var first = FetchItems<int>(1);
-      var second = FetchItems<int>(2);
+      var first = FetchItems<int>(filter: 1);
+      var second = FetchItems<int>(filter: 2);
       expect(first, isNot(equals(second)));
     });
     test('toString should contain runtime type and state value', () {
-      var event = FetchItems<int>(2);
+      var event = FetchItems<int>(filter: 2);
       expect(event.toString(), 'FetchItems<int> { filter: 2 }');
     });
   });
