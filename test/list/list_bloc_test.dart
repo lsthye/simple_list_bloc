@@ -206,6 +206,12 @@ void main() {
       build: () => ListBloc(state: ListState(items: [1, 2, 3, 4, 5]), debounce: 0, allowDuplicate: true),
       act: (bloc) => bloc.add(RemoveItems([3, 5, 6])),
       verify: (bloc) async {
+        expect(bloc.hasItem(1), equals(true));
+        expect(bloc.hasItem(2), equals(true));
+        expect(bloc.hasItem(4), equals(true));
+        expect(bloc.hasItem(3), equals(false));
+        expect(bloc.hasItem(5), equals(false));
+        expect(bloc.hasItem(6), equals(false));
         expect(bloc.state.items, equals([1, 2, 4]));
         expect("${bloc.lastEvent.runtimeType}", equals("${RemoveItems([3, 5, 6]).runtimeType}"));
       },

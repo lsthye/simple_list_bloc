@@ -207,6 +207,10 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
     );
   }
 
+  /// Check if list contains target
+  bool hasItem(T target) => state.items.contains(target);
+
+  /// Fetch next page if not eof
   fetchNextPage() {
     if (!state.hasReachedMax) {
       add(FetchItems(filter: state.filter));
