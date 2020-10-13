@@ -24,7 +24,7 @@ void main() {
   group('list bloc', () {
     blocTest<ListSelectionBloc<int>, SelectionState>(
       'should change to selecting when call toggle while selecting = false',
-      build: () => ListSelectionBloc<int>(SelectionState()),
+      build: () => ListSelectionBloc<int>(),
       act: (bloc) => bloc.toggleSelection(),
       verify: (bloc) async {
         expect(bloc.state.selecting, equals(true));
@@ -33,7 +33,7 @@ void main() {
 
     blocTest<ListSelectionBloc<int>, SelectionState>(
       'should change to selecting = false when call toggle while selecting = true',
-      build: () => ListSelectionBloc<int>(SelectionState(selecting: true)),
+      build: () => ListSelectionBloc<int>(state: SelectionState(selecting: true)),
       act: (bloc) => bloc.toggleSelection(),
       verify: (bloc) async {
         expect(bloc.state.selecting, equals(false));
@@ -42,7 +42,7 @@ void main() {
 
     blocTest<ListSelectionBloc<int>, SelectionState>(
       'items should contains selected item',
-      build: () => ListSelectionBloc<int>(SelectionState()),
+      build: () => ListSelectionBloc<int>(),
       act: (bloc) async {
         bloc.toggleSelection();
         await Future.delayed(Duration(milliseconds: 100));
@@ -57,7 +57,7 @@ void main() {
 
     blocTest<ListSelectionBloc<int>, SelectionState>(
       'should change selecting back to false when clear selection',
-      build: () => ListSelectionBloc<int>(SelectionState()),
+      build: () => ListSelectionBloc<int>(),
       act: (bloc) async {
         bloc.toggleSelection();
         await Future.delayed(Duration(milliseconds: 100));
@@ -73,7 +73,7 @@ void main() {
 
     blocTest<ListSelectionBloc<int>, SelectionState>(
       'should not change selecting back to false when clear selection with endSelectionMode = false',
-      build: () => ListSelectionBloc<int>(SelectionState()),
+      build: () => ListSelectionBloc<int>(),
       act: (bloc) async {
         bloc.toggleSelection();
         await Future.delayed(Duration(milliseconds: 100));
@@ -90,7 +90,7 @@ void main() {
 
     blocTest<ListSelectionBloc<int>, SelectionState>(
       'should remove unselected item from selections',
-      build: () => ListSelectionBloc<int>(SelectionState()),
+      build: () => ListSelectionBloc<int>(),
       act: (bloc) async {
         bloc.toggleSelection();
         await Future.delayed(Duration(milliseconds: 100));
@@ -107,7 +107,7 @@ void main() {
 
     blocTest<ListSelectionBloc<int>, SelectionState>(
       'should not select more then max selection of items',
-      build: () => ListSelectionBloc<int>(SelectionState(maxSelection: 3)),
+      build: () => ListSelectionBloc<int>(state: SelectionState(maxSelection: 3)),
       act: (bloc) async {
         bloc.toggleSelection();
         await Future.delayed(Duration(milliseconds: 100));
@@ -129,8 +129,8 @@ void main() {
     );
 
     blocTest<ListSelectionBloc<int>, SelectionState>(
-      'should set selecting to false when call start bulk select with null target',
-      build: () => ListSelectionBloc<int>(SelectionState()),
+      'should set selecting to true and start bulk select when call start bulk select with null target',
+      build: () => ListSelectionBloc<int>(),
       act: (bloc) async {
         bloc.toggleSelection();
         await Future.delayed(Duration(milliseconds: 100));
@@ -141,30 +141,32 @@ void main() {
       },
       verify: (bloc) async {
         expect(bloc.items, equals([1, 2, 3, 4, 5]));
-        expect(bloc.state.selecting, equals(false));
+        expect(bloc.state.selecting, equals(true));
+        expect(bloc.state.bulk, equals(true));
       },
     );
 
     blocTest<ListSelectionBloc<int>, SelectionState>(
       'should set selecting to false when call start bulk select with null target',
-      build: () => ListSelectionBloc<int>(SelectionState()),
+      build: () => ListSelectionBloc<int>(),
       act: (bloc) async {
         bloc.toggleSelection();
         await Future.delayed(Duration(milliseconds: 100));
         bloc.selectItems([1, 2, 3, 4, 5]);
         await Future.delayed(Duration(milliseconds: 100));
-        bloc.endMultiSelect(null, []);
+        bloc.endMultiSelect();
         await Future.delayed(Duration(milliseconds: 100));
       },
       verify: (bloc) async {
         expect(bloc.items, equals([1, 2, 3, 4, 5]));
         expect(bloc.state.selecting, equals(false));
+        expect(bloc.state.bulk, equals(false));
       },
     );
 
     blocTest<ListSelectionBloc<int>, SelectionState>(
       'should update state with start select target without selecting anything',
-      build: () => ListSelectionBloc<int>(SelectionState()),
+      build: () => ListSelectionBloc<int>(),
       act: (bloc) async {
         bloc.startBulkSelect(3);
         await Future.delayed(Duration(milliseconds: 100));
@@ -178,7 +180,7 @@ void main() {
 
     blocTest<ListSelectionBloc<int>, SelectionState>(
       'should able to select as normal even has start select target',
-      build: () => ListSelectionBloc<int>(SelectionState()),
+      build: () => ListSelectionBloc<int>(),
       act: (bloc) async {
         bloc.startBulkSelect(3);
         await Future.delayed(Duration(milliseconds: 100));
@@ -194,11 +196,11 @@ void main() {
 
     blocTest<ListSelectionBloc<int>, SelectionState>(
       'should select all items between start and end',
-      build: () => ListSelectionBloc<int>(SelectionState()),
+      build: () => ListSelectionBloc<int>(),
       act: (bloc) async {
         bloc.startBulkSelect(3);
         await Future.delayed(Duration(milliseconds: 100));
-        bloc.endMultiSelect(7, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+        bloc.endMultiSelect(target: 7, list: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
         await Future.delayed(Duration(milliseconds: 100));
       },
       verify: (bloc) async {
@@ -210,11 +212,11 @@ void main() {
 
     blocTest<ListSelectionBloc<int>, SelectionState>(
       'should select all items between start and end even it\s reverse order',
-      build: () => ListSelectionBloc<int>(SelectionState()),
+      build: () => ListSelectionBloc<int>(),
       act: (bloc) async {
         bloc.startBulkSelect(7);
         await Future.delayed(Duration(milliseconds: 100));
-        bloc.endMultiSelect(3, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+        bloc.endMultiSelect(target: 3, list: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
         await Future.delayed(Duration(milliseconds: 100));
       },
       verify: (bloc) async {
@@ -226,13 +228,13 @@ void main() {
 
     blocTest<ListSelectionBloc<int>, SelectionState>(
       'should bulk select should append to current list without duplicate',
-      build: () => ListSelectionBloc<int>(SelectionState()),
+      build: () => ListSelectionBloc<int>(),
       act: (bloc) async {
         bloc.startBulkSelect(3);
         await Future.delayed(Duration(milliseconds: 100));
         bloc.selectItems([1, 2, 3, 4, 5]);
         await Future.delayed(Duration(milliseconds: 100));
-        bloc.endMultiSelect(7, [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
+        bloc.endMultiSelect(target: 7, list: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
         await Future.delayed(Duration(milliseconds: 100));
       },
       verify: (bloc) async {

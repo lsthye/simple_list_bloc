@@ -3,7 +3,7 @@ import 'package:equatable/equatable.dart';
 
 /// Cubit to control list's selection
 class ListSelectionBloc<T> extends Cubit<SelectionState<T>> {
-  ListSelectionBloc(SelectionState<T> state) : super(state);
+  ListSelectionBloc({SelectionState<T> state}) : super(state ?? SelectionState<T>());
 
   /// get list of selected items
   List<T> get items => state.selectedItems.keys.toList();
@@ -13,28 +13,24 @@ class ListSelectionBloc<T> extends Cubit<SelectionState<T>> {
     emit(state.copyWith(selecting: !state.selecting));
   }
 
-  /// set starting flag for bulk selection, if target = null will disable selection mode
+  /// set starting flag for bulk selection
   ///
   /// [target] starting flag for bulk select
   void startBulkSelect(T target) {
-    if (target != null) {
-      emit(state.copyWith(
-        selecting: true,
-        startItem: target,
-        bulk: true,
-      ));
-    } else {
-      emit(state.copyWith(selecting: false));
-    }
+    emit(state.copyWith(
+      selecting: true,
+      startItem: target,
+      bulk: true,
+    ));
   }
 
-  /// set ending flag for bulk selection, if target/selectionBloc = null will disable selection mode
+  /// set ending flag for bulk selection, if target/list = null will disable selection mode
   ///
-  /// [endTarget] ending flag for bulk select
+  /// [target] ending flag for bulk select
   ///
   /// [list] all item list
-  void endMultiSelect(T endTarget, List<T> list) {
-    if (endTarget == null) {
+  void endMultiSelect({T target, List<T> list}) {
+    if (target == null || list == null) {
       emit(state.copyWith(selecting: false));
     } else {
       List<T> selected = [];
@@ -42,7 +38,7 @@ class ListSelectionBloc<T> extends Cubit<SelectionState<T>> {
       int found = 0;
       for (var i = 0; i < list.length; i++) {
         var f = list[i];
-        if (f == startTarget || f == endTarget) {
+        if (f == startTarget || f == target) {
           found++;
         }
         if (1 <= found && found <= 2) {

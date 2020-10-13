@@ -15,7 +15,7 @@ class _DemoGridViewState extends State<DemoGridView> {
   final DemoListBloc listBloc = DemoListBloc();
 
   // selection bloc to keep track of selection mode and list of selected item
-  final ListSelectionBloc<DemoModel> selectionBloc = ListSelectionBloc(SelectionState());
+  final ListSelectionBloc<DemoModel> selectionBloc = ListSelectionBloc();
 
   // global key to keep listview scroll position when change state
   final GlobalKey key = GlobalKey();
