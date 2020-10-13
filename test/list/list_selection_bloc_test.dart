@@ -136,7 +136,7 @@ void main() {
         await Future.delayed(Duration(milliseconds: 100));
         bloc.selectItems([1, 2, 3, 4, 5]);
         await Future.delayed(Duration(milliseconds: 100));
-        bloc.startBulkSelect(null);
+        bloc.startBulkSelect();
         await Future.delayed(Duration(milliseconds: 100));
       },
       verify: (bloc) async {
@@ -168,7 +168,7 @@ void main() {
       'should update state with start select target without selecting anything',
       build: () => ListSelectionBloc<int>(),
       act: (bloc) async {
-        bloc.startBulkSelect(3);
+        bloc.startBulkSelect(target: 3);
         await Future.delayed(Duration(milliseconds: 100));
       },
       verify: (bloc) async {
@@ -182,7 +182,7 @@ void main() {
       'should able to select as normal even has start select target',
       build: () => ListSelectionBloc<int>(),
       act: (bloc) async {
-        bloc.startBulkSelect(3);
+        bloc.startBulkSelect(target: 3);
         await Future.delayed(Duration(milliseconds: 100));
         bloc.selectItems([1, 2, 3, 4, 5]);
         await Future.delayed(Duration(milliseconds: 100));
@@ -198,7 +198,7 @@ void main() {
       'should select all items between start and end',
       build: () => ListSelectionBloc<int>(),
       act: (bloc) async {
-        bloc.startBulkSelect(3);
+        bloc.startBulkSelect(target: 3);
         await Future.delayed(Duration(milliseconds: 100));
         bloc.endMultiSelect(target: 7, list: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
         await Future.delayed(Duration(milliseconds: 100));
@@ -214,7 +214,7 @@ void main() {
       'should select all items between start and end even it\s reverse order',
       build: () => ListSelectionBloc<int>(),
       act: (bloc) async {
-        bloc.startBulkSelect(7);
+        bloc.startBulkSelect(target: 7);
         await Future.delayed(Duration(milliseconds: 100));
         bloc.endMultiSelect(target: 3, list: [1, 2, 3, 4, 5, 6, 7, 8, 9, 0]);
         await Future.delayed(Duration(milliseconds: 100));
@@ -230,7 +230,7 @@ void main() {
       'should bulk select should append to current list without duplicate',
       build: () => ListSelectionBloc<int>(),
       act: (bloc) async {
-        bloc.startBulkSelect(3);
+        bloc.startBulkSelect(target: 3);
         await Future.delayed(Duration(milliseconds: 100));
         bloc.selectItems([1, 2, 3, 4, 5]);
         await Future.delayed(Duration(milliseconds: 100));

@@ -16,7 +16,7 @@ class ListSelectionBloc<T> extends Cubit<SelectionState<T>> {
   /// set starting flag for bulk selection
   ///
   /// [target] starting flag for bulk select
-  void startBulkSelect(T target) {
+  void startBulkSelect({T target}) {
     emit(state.copyWith(
       selecting: true,
       startItem: target,
