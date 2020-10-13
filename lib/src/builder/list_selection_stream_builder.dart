@@ -25,24 +25,12 @@ class SelectionStreamBuilder<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     ListSelectionBloc<T> bloc = selectionBloc ?? BlocProvider.of(context);
-    bool has = bloc.selectedMap.containsKey(target);
-    return StreamBuilder(
-      key: Key("$target"),
-      initialData: {"trigger": has, "hasTarget": has},
-      builder: (context, snapshot) {
-        return builder(context, target, snapshot.data["hasTarget"]);
+    return BlocBuilder<ListSelectionBloc, SelectionState>(
+      cubit: bloc,
+      builder: (context, snapshot) => builder(context, target, bloc.state.selectedItems.containsKey(target)),
+      buildWhen: (previous, current) {
+        return previous.selectedItems.containsKey(target) != current.selectedItems.containsKey(target);
       },
-      stream: bloc.selectedItems.events.map((event) {
-        bool trigger = false;
-        bool hasTarget = false;
-        if (event is AddItems<T>) {
-          trigger = event.items.contains(target);
-          hasTarget = true;
-        } else if (event is RemoveItems<T>) {
-          trigger = event.items.contains(target);
-        }
-        return {"trigger": trigger, "hasTarget": hasTarget};
-      }).where((event) => event["trigger"]),
     );
   }
 }

@@ -26,9 +26,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
   bool _debug;
 
   /// Events
-  BehaviorSubject<ListEvent> _events = BehaviorSubject.seeded(null);
-  Stream<ListEvent> get events => _events.stream;
-  ListEvent get lastEvent => _events.value;
+  ListEvent lastEvent;
 
   ListBloc({
     ListState<T, F> state,
@@ -43,15 +41,9 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
         super(state ?? ListState<T, F>(items: []));
 
   @override
-  Future<void> close() {
-    _events.close();
-    return super.close();
-  }
-
-  @override
   void onEvent(ListEvent event) {
     super.onEvent(event);
-    _events.sink.add(event);
+    lastEvent = event;
   }
 
   /// Override this to handle add item

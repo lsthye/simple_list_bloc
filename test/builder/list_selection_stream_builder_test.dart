@@ -14,7 +14,7 @@ void main() {
 
   setUp(() {
     bloc = MockListBloc();
-    selectionBloc = ListSelectionBloc(SelectionState());
+    selectionBloc = ListSelectionBloc(SelectionState(selectedItems: {}));
   });
 
   Widget buildView() {

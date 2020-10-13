@@ -22,9 +22,6 @@ void main() {
   });
 
   group('list bloc', () {
-    // ListSelectionBloc<int> bloc;
-    // setUp(() => bloc = ListSelectionBloc<int>(SelectionState()));
-
     blocTest<ListSelectionBloc<int>, SelectionState>(
       'should change to selecting when call toggle while selecting = false',
       build: () => ListSelectionBloc<int>(SelectionState()),
@@ -207,7 +204,7 @@ void main() {
       verify: (bloc) async {
         expect(bloc.items, equals([3, 4, 5, 6, 7]));
         expect(bloc.state.selecting, equals(true));
-        expect(bloc.state.startItem, equals(3));
+        expect(bloc.state.startItem, equals(null)); // remove start flag after end select
       },
     );
 
@@ -223,7 +220,7 @@ void main() {
       verify: (bloc) async {
         expect(bloc.items, equals([3, 4, 5, 6, 7]));
         expect(bloc.state.selecting, equals(true));
-        expect(bloc.state.startItem, equals(7));
+        expect(bloc.state.startItem, equals(null)); // remove start flag after end select
       },
     );
 
@@ -241,7 +238,7 @@ void main() {
       verify: (bloc) async {
         expect(bloc.items, equals([1, 2, 3, 4, 5, 6, 7]));
         expect(bloc.state.selecting, equals(true));
-        expect(bloc.state.startItem, equals(3));
+        expect(bloc.state.startItem, equals(null)); // remove start flag after end select
       },
     );
   });

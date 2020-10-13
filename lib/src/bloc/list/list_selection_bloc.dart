@@ -1,43 +1,16 @@
-import 'dart:async';
-
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-import 'package:simple_list_bloc/simple_list_bloc.dart';
-import 'package:simple_list_bloc/src/bloc/list/list_bloc.dart';
 
 /// Cubit to control list's selection
 class ListSelectionBloc<T> extends Cubit<SelectionState<T>> {
-  /// bloc to hold selected items
-  final ListBloc<T, String> selectedItems = ListBloc(debounce: 0);
-
-  /// map for faster lookup for selected items
-  final Map<T, bool> selectedMap = {};
-
-  /// subscription listen to slecteditems bloc and update selectedmap
-  StreamSubscription streamSubscription;
-
-  ListSelectionBloc(SelectionState<T> state) : super(state) {
-    streamSubscription = selectedItems.listen((state) {
-      selectedMap.clear();
-      state.items.forEach((element) {
-        selectedMap[element] = true;
-      });
-    });
-  }
+  ListSelectionBloc(SelectionState<T> state) : super(state);
 
   /// get list of selected items
-  List<T> get items => selectedItems.state.items;
-
-  @override
-  Future<void> close() {
-    streamSubscription.cancel();
-    selectedItems.close();
-    return super.close();
-  }
+  List<T> get items => state.selectedItems.keys.toList();
 
   /// toggle selection mode
   void toggleSelection() {
-    emit(state.copyWith(selecting: !state.selecting, maxSelection: state.maxSelection));
+    emit(state.copyWith(selecting: !state.selecting));
   }
 
   /// set starting flag for bulk selection, if target = null will disable selection mode
@@ -49,10 +22,9 @@ class ListSelectionBloc<T> extends Cubit<SelectionState<T>> {
         selecting: true,
         startItem: target,
         bulk: true,
-        maxSelection: state.maxSelection,
       ));
     } else {
-      emit(state.copyWith(maxSelection: state.maxSelection));
+      emit(state.copyWith(selecting: false));
     }
   }
 
@@ -63,7 +35,7 @@ class ListSelectionBloc<T> extends Cubit<SelectionState<T>> {
   /// [list] all item list
   void endMultiSelect(T endTarget, List<T> list) {
     if (endTarget == null) {
-      emit(state.copyWith(maxSelection: state.maxSelection));
+      emit(state.copyWith(selecting: false));
     } else {
       List<T> selected = [];
       var startTarget = state.startItem;
@@ -74,7 +46,7 @@ class ListSelectionBloc<T> extends Cubit<SelectionState<T>> {
           found++;
         }
         if (1 <= found && found <= 2) {
-          if (!selectedMap.containsKey(f)) {
+          if (!state.selectedItems.containsKey(f)) {
             selected.add(f);
           }
         }
@@ -82,49 +54,55 @@ class ListSelectionBloc<T> extends Cubit<SelectionState<T>> {
           break;
         }
       }
-      selectItems(selected);
+      _selectItems(selected);
     }
   }
 
   /// clear all selection and end selection mode
   void clearSelection({bool endSelectionMode = true}) {
-    if (selectedItems != null) {
-      selectedItems.add(RemoveItems(selectedItems.state.items));
-    }
     if (endSelectionMode) {
-      emit(state.copyWith(maxSelection: state.maxSelection));
+      emit(state.copyWithMap(selecting: false, selectedItems: {}));
+    } else {
+      emit(state.copyWithMap(selectedItems: {}));
     }
   }
 
   /// select item if not exist, unselect if exist
   void toggleItem(T item) {
-    if (selectedItems != null && item != null) {
-      if (!selectedItems.state.items.contains(item)) {
-        selectItems([item]);
-      } else {
-        unselectItems([item]);
-      }
+    Map<T, bool> tmp = Map.from(state.selectedItems);
+    if (state.selectedItems.containsKey(item)) {
+      tmp.remove(item);
+    } else {
+      tmp[item] = true;
     }
+    emit(state.copyWithMap(selectedItems: tmp));
   }
 
   /// add items to selection
-  void selectItems(List<T> items) {
-    if (selectedItems != null) {
-      List<T> toAdd = items.toList();
-      if (state.maxSelection > 0) {
-        while ((toAdd.length + selectedItems.state.items.length) > state.maxSelection && toAdd.length > 0) {
-          toAdd.removeLast();
-        }
+  void selectItems(List<T> items) => _selectItems(items, startItem: state.startItem);
+
+  /// add items to selection
+  void _selectItems(List<T> items, {T startItem}) {
+    List<T> toAdd = items.toList();
+    if (state.maxSelection > 0) {
+      while ((toAdd.length + state.selectedItems.length) > state.maxSelection && toAdd.length > 0) {
+        toAdd.removeLast();
       }
-      if (toAdd.length > 0) selectedItems.add(AddItems(toAdd));
+    }
+    if (toAdd.length > 0) {
+      Map<T, bool> tmp = Map.from(state.selectedItems);
+      toAdd.forEach((element) {
+        tmp[element] = true;
+      });
+      emit(state.copyWithMap(selectedItems: tmp, startItem: startItem));
     }
   }
 
   /// remove items from selection
   void unselectItems(List<T> items) {
-    if (selectedItems != null && items.length > 0) {
-      selectedItems.add(RemoveItems(items));
-    }
+    Map<T, bool> tmp = Map.from(state.selectedItems);
+    tmp.removeWhere((key, value) => items.contains(key));
+    emit(state.copyWithMap(selectedItems: tmp));
   }
 }
 
@@ -142,28 +120,47 @@ class SelectionState<T> extends Equatable {
   final bool selecting;
   final bool bulk;
   final T startItem;
+  final Map<T, bool> selectedItems;
 
   SelectionState({
     this.maxSelection = -1,
     this.selecting = false,
     this.bulk = false,
     this.startItem,
+    this.selectedItems = const {},
   });
 
   SelectionState<T> copyWith({
-    int maxSelection = -1,
-    bool selecting = false,
-    bool bulk = false,
+    int maxSelection,
+    bool selecting,
+    bool bulk,
     T startItem,
   }) {
     return SelectionState<T>(
-      maxSelection: maxSelection ?? -1,
-      selecting: selecting ?? false,
-      bulk: bulk ?? false,
+      maxSelection: maxSelection ?? this.maxSelection ?? -1,
+      selecting: selecting ?? this.selecting ?? false,
+      bulk: bulk ?? this.bulk ?? false,
       startItem: startItem,
+      selectedItems: selectedItems,
+    );
+  }
+
+  SelectionState<T> copyWithMap({
+    int maxSelection,
+    bool selecting,
+    bool bulk,
+    T startItem,
+    Map<T, bool> selectedItems,
+  }) {
+    return SelectionState<T>(
+      maxSelection: maxSelection ?? this.maxSelection ?? -1,
+      selecting: selecting ?? this.selecting ?? false,
+      bulk: bulk ?? this.bulk ?? false,
+      startItem: startItem,
+      selectedItems: Map.unmodifiable(selectedItems),
     );
   }
 
   @override
-  List<Object> get props => [maxSelection, selecting, bulk, startItem];
+  List<Object> get props => [maxSelection, selecting, bulk, startItem, selectedItems];
 }
