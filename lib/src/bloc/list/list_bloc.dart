@@ -22,7 +22,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
   /// Allow duplicate items
   bool _allowDuplicate;
 
-  /// Print debug message
+  /// Print error message
   bool _debug;
 
   /// Events
@@ -122,7 +122,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
         } else {
           var x = r;
           r = x.copyWith(
-            items: List<T>() + await sortItems(x.items),
+            items: List<T>.from(await sortItems(x.items)),
             loading: x.loading,
             error: x.error,
             initialized: x.initialized,
@@ -143,7 +143,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
   Future<ListState<T, F>> mapRefresh(ListState<T, F> currentState, ListEvent event, int count, bool max) async {
     var items = await fetchItems(currentState?.filter, 0, count);
     return currentState.copyWith(
-      items: List<T>() + await sortItems(items),
+      items: List<T>.from(await sortItems(items)),
       hasReachedMax: max,
       filter: currentState?.filter,
     );
@@ -168,7 +168,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
       result = filter;
     }
     var items = await sortItems(state.items + result, newItem: result);
-    return state.copyWith(items: List<T>() + items);
+    return state.copyWith(items: List<T>.from(items));
   }
 
   /// Remove item from list
@@ -181,7 +181,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
       }
     }
     var items = await sortItems(state.items);
-    return state.copyWith(items: List<T>() + items);
+    return state.copyWith(items: List<T>.from(items));
   }
 
   /// Fetch data
@@ -189,7 +189,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
   Future<ListState<T, F>> handleFetchEvent(ListState<T, F> rState, FetchItems<F> event) async {
     final items = await fetchItems(event.filter, event.clear ? 0 : rState.items.length, _viewCount);
     return rState.copyWith(
-      items: event.clear ? items : rState.items + items,
+      items: await sortItems(event.clear ? items : rState.items + items),
       hasReachedMax: _viewCount == -1 || items.isEmpty
           ? true
           : event.clear
