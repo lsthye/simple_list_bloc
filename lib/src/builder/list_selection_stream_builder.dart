@@ -10,27 +10,23 @@ import 'package:simple_list_bloc/src/bloc/list/list_selection_bloc.dart';
 /// [selectionBloc] selection bloc to monitor
 ///
 /// [builder] build when target was added/removed
-class SelectionStreamBuilder<T> extends StatelessWidget {
+class SelectionStreamBuilder<T> extends BlocBuilderBase<ListSelectionBloc, SelectionState> {
   final T target;
   final ListSelectionBloc<T> selectionBloc;
-  final Widget Function(BuildContext, T, bool) builder;
+  final Widget Function(BuildContext, ListSelectionBloc<T>, T, bool) builder;
 
   const SelectionStreamBuilder({
     Key key,
     @required this.builder,
     @required this.target,
-    this.selectionBloc,
-  }) : super(key: key);
+    @required this.selectionBloc,
+  }) : super(key: key, cubit: selectionBloc);
 
   @override
-  Widget build(BuildContext context) {
-    ListSelectionBloc<T> bloc = selectionBloc ?? BlocProvider.of(context);
-    return BlocBuilder<ListSelectionBloc, SelectionState>(
-      cubit: bloc,
-      builder: (context, snapshot) => builder(context, target, bloc.state.selectedItems.containsKey(target)),
-      buildWhen: (previous, current) {
-        return previous.selectedItems.containsKey(target) != current.selectedItems.containsKey(target);
-      },
-    );
+  get buildWhen => (a, b) => a.selectedItems.containsKey(target) != b.selectedItems.containsKey(target);
+
+  @override
+  Widget build(BuildContext context, SelectionState state) {
+    return builder(context, selectionBloc, target, state.selectedItems.containsKey(target));
   }
 }

@@ -166,7 +166,7 @@ class _DemoListViewState extends State<DemoListView> {
     return SelectionStreamBuilder(
       target: item,
       selectionBloc: selectionBloc,
-      builder: (context, data, hasTarget) {
+      builder: (context, state, data, hasTarget) {
         if (hasTarget) {
           return Icon(Icons.check_circle);
         }

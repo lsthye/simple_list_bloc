@@ -15,7 +15,7 @@ import 'package:simple_list_bloc/src/bloc/list/list_state.dart';
 /// [onEmpty] when bloc has loaded but it's empty
 ///
 /// [onError] when bloc has error message
-class ListStateBuilder<B extends ListBloc> extends StatefulWidget {
+class ListStateBuilder<B extends ListBloc> extends BlocBuilderBase<B, ListState> {
   final B bloc;
   final Widget Function(BuildContext) onSuccess;
   final Widget Function(BuildContext) onInit;
@@ -33,56 +33,29 @@ class ListStateBuilder<B extends ListBloc> extends StatefulWidget {
     this.onEmpty,
     this.onError,
     this.condition,
-  }) : super(key: key);
+  }) : super(key: key, cubit: bloc, buildWhen: condition);
 
   @override
-  _ListStateBuilderState createState() => _ListStateBuilderState();
-}
-
-class _ListStateBuilderState<B extends ListBloc> extends State<ListStateBuilder<B>> {
-  Widget cache;
-  int lastCacheItemCount = 0;
-
-  @override
-  Widget build(BuildContext context) {
-    B bloc = widget.bloc ?? BlocProvider.of<B>(context);
-    return BlocBuilder<B, ListState>(
-      cubit: bloc,
-      builder: (context, state) {
-        if (!state.initialized && widget.onInit != null) {
-          return widget.onInit(context) ?? SizedBox();
-        } else if (state.loading && widget.onLoading != null) {
-          var child = widget.onLoading(context, state.items.length == 0) ?? SizedBox();
-          if (state.items.length == 0) {
-            return child;
-          } else {
-            return Column(children: [Expanded(child: getChild(context)), child]);
-          }
-        } else if (state.error != null && state.error.isNotEmpty && widget.onError != null) {
-          var child =
-              widget.onError(context, widget.bloc.lastEvent, state.error, state.items.length == 0) ?? SizedBox();
-          if (state.items.length == 0) {
-            return child;
-          } else {
-            return Column(children: [Expanded(child: getChild(context)), child]);
-          }
-        } else if (state.items != null) {
-          if (state.items.length == 0 && widget.onEmpty != null) {
-            return widget.onEmpty(context) ?? SizedBox();
-          }
-          return getChild(context);
-        } else {
-          return const SizedBox();
-        }
-      },
-    );
-  }
-
-  Widget getChild(BuildContext context) {
-    if (cache == null || lastCacheItemCount != widget.bloc.state.items.length) {
-      cache = widget.onSuccess(context);
-      lastCacheItemCount = widget.bloc.state.items.length;
+  Widget build(BuildContext context, ListState state) {
+    if (state.items.length == 0) {
+      if (!state.initialized && onInit != null) {
+        return onInit(context);
+      } else if (state.loading && onLoading != null) {
+        return onLoading(context, true);
+      } else if (state.error != null && state.error.isNotEmpty && onError != null) {
+        return onError(context, bloc.lastEvent, state.error, true);
+      } else if (onEmpty != null) {
+        return onEmpty(context);
+      } else {
+        return SizedBox();
+      }
+    } else {
+      return Column(children: [
+        Expanded(child: onSuccess(context)),
+        if (state.loading && onLoading != null) onLoading(context, false),
+        if (state.error != null && state.error.isNotEmpty && onError != null)
+          onError(context, bloc.lastEvent, state.error, false),
+      ]);
     }
-    return cache;
   }
 }

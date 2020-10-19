@@ -1,3 +1,8 @@
+## v0.0.6 - 2020-10-19
+
+* fix `ListStateBuilder` caused `ListView` didn't preserve it's scroll position after loading next page
+* `SelectionStreamBuilder`'s builder pass `ListSelectionBloc` as parameter
+
 ## v0.0.5 - 2020-10-17
 
 * `fetch` should call `sortItems` after fetch

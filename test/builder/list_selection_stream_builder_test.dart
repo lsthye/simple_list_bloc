@@ -26,7 +26,7 @@ void main() {
             itemBuilder: (context, index) {
               var item = bloc.state.items[index];
               return SelectionStreamBuilder(
-                builder: (context, target, selected) {
+                builder: (context, state, target, selected) {
                   return ListTile(
                     title: Text("$index", key: Key("item_$index")),
                     trailing: selected ? Text("$selected", key: Key("selected_$index")) : null,

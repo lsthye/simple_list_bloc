@@ -167,7 +167,7 @@ class _DemoGridViewState extends State<DemoGridView> {
     return SelectionStreamBuilder(
       target: item,
       selectionBloc: selectionBloc,
-      builder: (context, data, hasTarget) {
+      builder: (context, state, data, hasTarget) {
         if (hasTarget) {
           return Icon(Icons.check_circle);
         }
