@@ -1,3 +1,7 @@
+## v0.0.7 - 2020-10-27
+
+* remove `currentstate` parameter from `ListBloc`'s method as `state` were exposed from extended `Bloc` object
+
 ## v0.0.6 - 2020-10-19
 
 * fix `ListStateBuilder` caused `ListView` didn't preserve it's scroll position after loading next page

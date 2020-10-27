@@ -1,6 +1,6 @@
 name: simple_list_bloc
 description: A generic BLoC library for list, support pagination & filtering
-version: 0.0.6
+version: 0.0.7
 author:
 homepage:
 

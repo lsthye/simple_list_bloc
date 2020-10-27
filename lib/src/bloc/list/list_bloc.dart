@@ -64,8 +64,8 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
 
   /// Override this to handle custom event
   @protected
-  Future<ListState<T, F>> customEvent(ListState<T, F> currentState, ListEvent event) async {
-    return currentState.copyWith(error: 'ListBloc Error: No implementation! - $runtimeType:[$event]');
+  Future<ListState<T, F>> customEvent(ListEvent event) async {
+    return state.copyWith(error: 'ListBloc Error: No implementation! - $runtimeType:[$event]');
   }
 
   @override
@@ -97,14 +97,14 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
           var reachedMax = (_viewCount == -1) ? true : state.hasReachedMax;
           r = state.copyWith(loading: true, hasReachedMax: reachedMax);
           Future.delayed(Duration(milliseconds: _debounce + 100), () async {
-            r = await mapRefresh(state, event, max(count, _viewCount), reachedMax);
+            r = await mapRefresh(event, max(count, _viewCount), reachedMax);
             add(PublishState(r));
           });
         }
       } else if (event is AddItems<T>) {
-        r = await handleAddEvent(state, event);
+        r = await handleAddEvent(event);
       } else if (event is RemoveItems<T>) {
-        r = await handleRemoveEvent(state, event);
+        r = await handleRemoveEvent(event);
       } else if (event is FetchItems<F>) {
         var max = state?.hasReachedMax ?? true;
         if ((_viewCount < 0 || !max) || event.filter != state.filter) {
@@ -113,10 +113,10 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
           } else {
             yield state.copyWith(loading: true);
           }
-          r = await handleFetchEvent(state, event);
+          r = await handleFetchEvent(event);
         }
       } else {
-        r = await customEvent(state, event);
+        r = await customEvent(event);
         if (r == null) {
           r = state.copyWith(error: "ListBloc Error: $runtimeType event not processed event = $event, state = $state");
         } else {
@@ -140,18 +140,14 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
 
   /// Refresh list
   @protected
-  Future<ListState<T, F>> mapRefresh(ListState<T, F> currentState, ListEvent event, int count, bool max) async {
-    var items = await fetchItems(currentState?.filter, 0, count);
-    return currentState.copyWith(
-      items: List<T>.from(await sortItems(items)),
-      hasReachedMax: max,
-      filter: currentState?.filter,
-    );
+  Future<ListState<T, F>> mapRefresh(ListEvent event, int count, bool max) async {
+    var items = await fetchItems(state?.filter, 0, count);
+    return state.copyWith(items: List<T>.from(await sortItems(items)), hasReachedMax: max, filter: state?.filter);
   }
 
   /// Add new item to list
   @protected
-  Future<ListState<T, F>> handleAddEvent(ListState<T, F> state, AddItems<T> event) async {
+  Future<ListState<T, F>> handleAddEvent(AddItems<T> event) async {
     var result = await addItems(event.items);
     if (result != null && result.length > 0) {
       var filter = List<T>();
@@ -173,7 +169,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
 
   /// Remove item from list
   @protected
-  Future<ListState<T, F>> handleRemoveEvent(ListState<T, F> state, RemoveItems<T> event) async {
+  Future<ListState<T, F>> handleRemoveEvent(RemoveItems<T> event) async {
     var result = List<T>() + await removeItems(event.items);
     if (result != null && result.length > 0) {
       for (var i = 0; i < result.length; i++) {
@@ -186,15 +182,15 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
 
   /// Fetch data
   @protected
-  Future<ListState<T, F>> handleFetchEvent(ListState<T, F> rState, FetchItems<F> event) async {
-    final items = await fetchItems(event.filter, event.clear ? 0 : rState.items.length, _viewCount);
-    return rState.copyWith(
-      items: await sortItems(event.clear ? items : rState.items + items),
+  Future<ListState<T, F>> handleFetchEvent(FetchItems<F> event) async {
+    final items = await fetchItems(event.filter, event.clear ? 0 : state.items.length, _viewCount);
+    return state.copyWith(
+      items: await sortItems(event.clear ? items : state.items + items),
       hasReachedMax: _viewCount == -1 || items.isEmpty
           ? true
           : event.clear
               ? false
-              : rState.hasReachedMax,
+              : state.hasReachedMax,
       filter: event.filter,
     );
   }

@@ -23,14 +23,14 @@ class SortIntListBloc extends ListBloc<int, bool> {
   }
 
   @override
-  Future<ListState<int, bool>> customEvent(ListState<int, bool> currentState, ListEvent event) async {
+  Future<ListState<int, bool>> customEvent(ListEvent event) async {
     if (event is ThrowErrorEvent) {
       throw "Intended Error";
     }
     if (event is NullEvent) {
       return null;
     }
-    return super.customEvent(currentState, event);
+    return super.customEvent(event);
   }
 }
 
