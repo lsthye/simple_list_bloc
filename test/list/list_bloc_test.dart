@@ -223,7 +223,7 @@ void main() {
       act: (bloc) => bloc.add(ThrowErrorEvent()),
       verify: (bloc) async {
         expect(bloc.state.error,
-            equals('ListBloc Error: No implementation! - ListBloc<dynamic, dynamic>:[ThrowErrorEvent]'));
+            equals('ListBloc Error: No implementation! - ListBloc<dynamic, dynamic>:[ThrowErrorEvent()]'));
         expect("${bloc.lastEvent.runtimeType}", equals("${ThrowErrorEvent().runtimeType}"));
       },
     );
