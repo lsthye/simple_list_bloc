@@ -1,3 +1,11 @@
+## v0.1.1 - 2021-04-22
+
+* should reset `hasReachedMax` to `false` when refresh with `clear:true` flag
+
+## v0.1.0 - 2021-03-10
+
+* update dependency for flutter 2.0
+
 ## v0.0.7 - 2020-10-27
 
 * remove `currentstate` parameter from `ListBloc`'s method as `state` were exposed from extended `Bloc` object

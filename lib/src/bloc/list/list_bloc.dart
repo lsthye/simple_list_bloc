@@ -88,7 +88,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
         r = event.state.copyWith(items: items);
       } else if (event is RefreshList) {
         if (event.clear) {
-          r = state.copyWith(loading: true, items: []);
+          r = state.copyWith(loading: true, items: [], hasReachedMax: false);
           Future.delayed(Duration(milliseconds: 10), () async {
             add(FetchItems<F>(filter: state.filter));
           });
@@ -150,7 +150,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
   Future<ListState<T, F>> handleAddEvent(AddItems<T> event) async {
     var result = await addItems(event.items);
     if (result != null && result.length > 0) {
-      var filter = List<T>();
+      List<T> filter = [];
       result.forEach((f) {
         bool exists = state.items.contains(f);
         if (event.replace && exists) {
@@ -170,7 +170,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
   /// Remove item from list
   @protected
   Future<ListState<T, F>> handleRemoveEvent(RemoveItems<T> event) async {
-    var result = List<T>() + await removeItems(event.items);
+    List<T> result = [] + await removeItems(event.items);
     if (result != null && result.length > 0) {
       for (var i = 0; i < result.length; i++) {
         state.items.remove(result[i]);
