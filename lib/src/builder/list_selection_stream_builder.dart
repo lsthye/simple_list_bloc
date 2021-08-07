@@ -12,15 +12,15 @@ import 'package:simple_list_bloc/src/bloc/list/list_selection_bloc.dart';
 /// [builder] build when target was added/removed
 class SelectionStreamBuilder<T> extends BlocBuilderBase<ListSelectionBloc, SelectionState> {
   final T target;
-  final ListSelectionBloc<T> selectionBloc;
-  final Widget Function(BuildContext, ListSelectionBloc<T>, T, bool) builder;
+  final ListSelectionBloc<T>? selectionBloc;
+  final Widget Function(BuildContext, ListSelectionBloc<T>?, T, bool) builder;
 
   const SelectionStreamBuilder({
-    Key key,
-    @required this.builder,
-    @required this.target,
-    @required this.selectionBloc,
-  }) : super(key: key, cubit: selectionBloc);
+    Key? key,
+    required this.builder,
+    required this.target,
+    required this.selectionBloc,
+  }) : super(key: key, bloc: selectionBloc);
 
   @override
   get buildWhen => (a, b) => a.selectedItems.containsKey(target) != b.selectedItems.containsKey(target);

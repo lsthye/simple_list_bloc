@@ -33,7 +33,7 @@ class SimpleListBloc extends ListBloc<SimpleListDataModel, dynamic> {
 
 /// The page
 class SimpleList extends StatefulWidget {
-  SimpleList({Key key}) : super(key: key);
+  SimpleList({Key? key}) : super(key: key);
 
   @override
   _SimpleListState createState() => _SimpleListState();
@@ -60,10 +60,6 @@ class _SimpleListState extends State<SimpleList> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Simple list"),
-      ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.clear),
-        onPressed: () => bloc.add(RemoveItems(bloc.state.items)),
       ),
       // Pull to refresh
       body: RefreshIndicator(
@@ -102,13 +98,13 @@ class _SimpleListState extends State<SimpleList> {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [Text("No Data"), RaisedButton(child: Text("Reload"), onPressed: () => bloc.add(RefreshList()))],
+        children: [Text("No Data"), TextButton(child: Text("Reload"), onPressed: () => bloc.add(RefreshList()))],
       ),
     );
   }
 
   /// view to display error thrown in bloc
-  Widget buildErrorView(BuildContext context, ListEvent event, String message, bool fullscreen) {
+  Widget buildErrorView(BuildContext context, ListEvent? event, String message, bool fullscreen) {
     // if fullscreen show message at center
     if (fullscreen) return Center(child: Text("Error: $message"));
 
@@ -116,7 +112,7 @@ class _SimpleListState extends State<SimpleList> {
     return Container(
       child: ListTile(
         title: Text("Error: $message"),
-        trailing: RaisedButton(child: Text("Retry"), onPressed: () => bloc.add(event)),
+        trailing: event == null ? null : TextButton(child: Text("Retry"), onPressed: () => bloc.add(event)),
       ),
       color: Colors.redAccent,
     );
@@ -139,7 +135,7 @@ class _SimpleListState extends State<SimpleList> {
 
   /// navigate to diffent page to show more complex sample
   onItemTap(BuildContext context, SimpleListDataModel item) {
-    Widget page;
+    Widget? page;
     if (item.key == "listview") {
       page = DemoListView();
     } else if (item.key == "gridview") {
@@ -148,7 +144,7 @@ class _SimpleListState extends State<SimpleList> {
       // TODO:
     }
     if (page != null) {
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) => page));
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => page!));
     }
   }
 }

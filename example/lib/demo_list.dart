@@ -4,7 +4,7 @@ import 'package:simple_list_bloc/simple_list_bloc.dart';
 
 /// Sample list view to show selection, filter and pagination
 class DemoListView extends StatefulWidget {
-  DemoListView({Key key}) : super(key: key);
+  DemoListView({Key? key}) : super(key: key);
 
   @override
   _DemoListViewState createState() => _DemoListViewState();
@@ -29,8 +29,8 @@ class _DemoListViewState extends State<DemoListView> {
 
   @override
   void dispose() {
-    listBloc?.close();
-    selectionBloc?.close();
+    listBloc.close();
+    selectionBloc.close();
     super.dispose();
   }
 
@@ -45,11 +45,15 @@ class _DemoListViewState extends State<DemoListView> {
         title: Text("Demo Selectable, Filtered & Paginated list"),
         actions: [
           StreamBuilder(
-            stream: selectionBloc,
+            stream: selectionBloc.stream,
             initialData: selectionBloc.state,
             builder: (BuildContext context, AsyncSnapshot snapshot) => buildAppBarMenu(context),
           )
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(Icons.clear),
+        onPressed: () => listBloc.add(RemoveItems(selectionBloc.items)),
       ),
       body: Column(
         children: [
@@ -81,14 +85,17 @@ class _DemoListViewState extends State<DemoListView> {
           IconButton(
             icon: Icon(Icons.select_all),
             onPressed: () => selectionBloc.selectItems(listBloc.state.items),
+            tooltip: "Select All",
           ),
           IconButton(
             icon: Icon(Icons.clear_all),
             onPressed: () => selectionBloc.clearSelection(endSelectionMode: false),
+            tooltip: "Clear All",
           ),
           IconButton(
             icon: Icon(Icons.close),
             onPressed: () => selectionBloc.toggleSelection(),
+            tooltip: "Close",
           ),
         ],
         mainAxisSize: MainAxisSize.min,
@@ -115,13 +122,13 @@ class _DemoListViewState extends State<DemoListView> {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        children: [Text("No Data"), RaisedButton(child: Text("Reload"), onPressed: () => listBloc.add(RefreshList()))],
+        children: [Text("No Data"), TextButton(child: Text("Reload"), onPressed: () => listBloc.add(RefreshList()))],
       ),
     );
   }
 
   /// view to display error thrown in bloc
-  Widget buildErrorView(BuildContext context, ListEvent event, String message, bool fullscreen) {
+  Widget buildErrorView(BuildContext context, ListEvent? event, String message, bool fullscreen) {
     // if fullscreen show message at center
     if (fullscreen) return Center(child: Text("Error: $message"));
 
@@ -129,7 +136,7 @@ class _DemoListViewState extends State<DemoListView> {
     return Container(
       child: ListTile(
         title: Text("Error: $message"),
-        trailing: RaisedButton(child: Text("Retry"), onPressed: () => listBloc.add(event)),
+        trailing: event == null ? null : TextButton(child: Text("Retry"), onPressed: () => listBloc.add(event)),
       ),
       color: Colors.redAccent,
     );
@@ -137,7 +144,7 @@ class _DemoListViewState extends State<DemoListView> {
 
   /// the list view
   ListView buildList(BuildContext context) {
-    var max = listBloc.state.hasReachedMax ?? true;
+    var max = listBloc.state.hasReachedMax;
     var count = listBloc.state.items.length + (max ? 0 : 1);
     return ListView.builder(
       key: key,

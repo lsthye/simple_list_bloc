@@ -1,3 +1,8 @@
+## v0.2.0 - 2021-08-07
+
+* update dependency for flutter 2.2.3
+* nullsafety
+
 ## v0.1.1 - 2021-04-22
 
 * should reset `hasReachedMax` to `false` when refresh with `clear:true` flag

@@ -8,13 +8,13 @@ class SortIntListBloc extends ListBloc<int, bool> {
   SortIntListBloc(ListState<int, bool> state) : super(state: state, debounce: 0);
 
   @override
-  Future<List<int>> sortItems(List<int> items, {List<int> newItem}) {
+  Future<List<int>> sortItems(List<int> items, {List<int>? newItem}) {
     items.sort();
     return super.sortItems(items, newItem: newItem);
   }
 
   @override
-  Future<List<int>> fetchItems(bool filter, int skip, int count) async {
+  Future<List<int>> fetchItems(bool? filter, int skip, int count) async {
     List<int> result = [];
     for (var i = 0; i < count; i++) {
       result.add(skip + i);
@@ -23,7 +23,7 @@ class SortIntListBloc extends ListBloc<int, bool> {
   }
 
   @override
-  Future<ListState<int, bool>> customEvent(ListEvent event) async {
+  Future<ListState<int, bool>?> customEvent(ListEvent event) async {
     if (event is ThrowErrorEvent) {
       throw "Intended Error";
     }
@@ -54,7 +54,7 @@ class NullEvent extends ListEvent {
 }
 
 void main() {
-  SortIntListBloc bloc;
+  late SortIntListBloc bloc;
   setUp(() => bloc = SortIntListBloc(ListState(items: [], initialized: false)));
   group('list bloc', () {
     test('should start with uninitialized state', () {
@@ -111,6 +111,7 @@ void main() {
       },
     );
 
+    var state12345 = ListState<int, bool>(items: [1, 2, 3, 4, 5]);
     blocTest<SortIntListBloc, ListState>(
       'should change state to loading before refresh',
       build: () => SortIntListBloc(ListState(items: [1, 2, 3, 4, 5])),
@@ -145,7 +146,7 @@ void main() {
         expect(bloc.state.initialized, equals(true));
         expect(bloc.state.loading, equals(false));
         expect(bloc.state.items.length, equals(20));
-        expect("${bloc.lastEvent.runtimeType}", equals("${PublishState<int, bool>(null).runtimeType}"));
+        expect("${bloc.lastEvent.runtimeType}", equals("${PublishState<int, bool>(state12345).runtimeType}"));
       },
     );
 
@@ -155,7 +156,7 @@ void main() {
       act: (bloc) => bloc.add(PublishState<int, bool>(ListState(items: [1, 3, 2, 5]))),
       verify: (bloc) {
         expect(bloc.state.items, equals([1, 2, 3, 5]));
-        expect("${bloc.lastEvent.runtimeType}", equals("${PublishState<int, bool>(null).runtimeType}"));
+        expect("${bloc.lastEvent.runtimeType}", equals("${PublishState<int, bool>(state12345).runtimeType}"));
       },
     );
 
@@ -167,7 +168,7 @@ void main() {
       },
       verify: (bloc) async {
         expect(bloc.state.items, equals([1, 3, 2, 5]));
-        expect("${bloc.lastEvent.runtimeType}", equals("${PublishState<int, bool>(null).runtimeType}"));
+        expect("${bloc.lastEvent.runtimeType}", equals("${PublishState<int, bool>(state12345).runtimeType}"));
       },
     );
 
@@ -222,8 +223,7 @@ void main() {
       build: () => ListBloc(debounce: 0),
       act: (bloc) => bloc.add(ThrowErrorEvent()),
       verify: (bloc) async {
-        expect(bloc.state.error,
-            equals('ListBloc Error: No implementation! - ListBloc<dynamic, dynamic>:[ThrowErrorEvent()]'));
+        expect(bloc.state.error, equals('ListBloc Error: No implementation! - ListBloc<dynamic, dynamic>:[ThrowErrorEvent()]'));
         expect("${bloc.lastEvent.runtimeType}", equals("${ThrowErrorEvent().runtimeType}"));
       },
     );

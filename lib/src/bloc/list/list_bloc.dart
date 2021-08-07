@@ -26,10 +26,10 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
   bool _debug;
 
   /// Events
-  ListEvent lastEvent;
+  ListEvent? lastEvent;
 
   ListBloc({
-    ListState<T, F> state,
+    ListState<T, F>? state,
     int viewCount = 20,
     int debounce = 200,
     bool allowDuplicate = false,
@@ -52,7 +52,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
 
   /// Override this to handle fetch
   @protected
-  Future<List<T>> fetchItems(F filter, int skip, int count) async => [];
+  Future<List<T>> fetchItems(F? filter, int skip, int count) async => [];
 
   /// Override this to handle remove
   @protected
@@ -60,11 +60,11 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
 
   /// Override this to handle sort
   @protected
-  Future<List<T>> sortItems(List<T> items, {List<T> newItem}) async => items;
+  Future<List<T>> sortItems(List<T> items, {List<T>? newItem}) async => items;
 
   /// Override this to handle custom event
   @protected
-  Future<ListState<T, F>> customEvent(ListEvent event) async {
+  Future<ListState<T, F>?> customEvent(ListEvent event) async {
     return state.copyWith(error: 'ListBloc Error: No implementation! - $runtimeType:[$event]');
   }
 
@@ -81,9 +81,9 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
 
   @override
   Stream<ListState<T, F>> mapEventToState(ListEvent event) async* {
-    ListState<T, F> r;
+    ListState<T, F>? r;
     try {
-      if (event is PublishState) {
+      if (event is PublishState<T, F>) {
         var items = await sortItems(event.state.items);
         r = event.state.copyWith(items: items);
       } else if (event is RefreshList) {
@@ -98,7 +98,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
           r = state.copyWith(loading: true, hasReachedMax: reachedMax);
           Future.delayed(Duration(milliseconds: _debounce + 100), () async {
             r = await mapRefresh(event, max(count, _viewCount), reachedMax);
-            add(PublishState(r));
+            add(PublishState<T, F>(r!));
           });
         }
       } else if (event is AddItems<T>) {
@@ -106,7 +106,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
       } else if (event is RemoveItems<T>) {
         r = await handleRemoveEvent(event);
       } else if (event is FetchItems<F>) {
-        var max = state?.hasReachedMax ?? true;
+        var max = state.hasReachedMax;
         if ((_viewCount < 0 || !max) || event.filter != state.filter) {
           if (event.clear) {
             yield state.copyWith(loading: true, items: []);
@@ -130,7 +130,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
         }
       }
       if (r != null) {
-        yield r;
+        yield r as ListState<T, F>;
       }
     } catch (e, stack) {
       if (_debug) print("ListBloc Error: [${event.runtimeType}: $r] $e, $stack");
@@ -141,15 +141,15 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
   /// Refresh list
   @protected
   Future<ListState<T, F>> mapRefresh(ListEvent event, int count, bool max) async {
-    var items = await fetchItems(state?.filter, 0, count);
-    return state.copyWith(items: List<T>.from(await sortItems(items)), hasReachedMax: max, filter: state?.filter);
+    var items = await fetchItems(state.filter, 0, count);
+    return state.copyWith(items: List<T>.from(await sortItems(items)), hasReachedMax: max, filter: state.filter);
   }
 
   /// Add new item to list
   @protected
   Future<ListState<T, F>> handleAddEvent(AddItems<T> event) async {
     var result = await addItems(event.items);
-    if (result != null && result.length > 0) {
+    if (result.length > 0) {
       List<T> filter = [];
       result.forEach((f) {
         bool exists = state.items.contains(f);
@@ -170,8 +170,9 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
   /// Remove item from list
   @protected
   Future<ListState<T, F>> handleRemoveEvent(RemoveItems<T> event) async {
-    List<T> result = [] + await removeItems(event.items);
-    if (result != null && result.length > 0) {
+    var removed = await removeItems(event.items);
+    List<T> result = removed.toList();
+    if (result.length > 0) {
       for (var i = 0; i < result.length; i++) {
         state.items.remove(result[i]);
       }

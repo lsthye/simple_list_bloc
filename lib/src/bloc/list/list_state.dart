@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:flutter/material.dart';
 
 /// Model to keeps track of list state
 ///
@@ -12,7 +11,7 @@ class ListState<T, F> extends Equatable {
   // Actual data
   final List<T> items;
   // Filter object
-  final F filter;
+  final F? filter;
   // Indicate has reach end of file
   final bool hasReachedMax;
   // Optional data to store
@@ -25,7 +24,7 @@ class ListState<T, F> extends Equatable {
   final String error;
 
   ListState({
-    @required this.items,
+    required this.items,
     this.hasReachedMax = false,
     this.filter,
     this.extra,
@@ -35,9 +34,9 @@ class ListState<T, F> extends Equatable {
   });
 
   ListState<T, F> copyWith({
-    List<T> items,
-    bool hasReachedMax,
-    F filter,
+    List<T>? items,
+    bool? hasReachedMax,
+    F? filter,
     dynamic extra,
     bool loading = false,
     bool initialized = true,
@@ -45,12 +44,12 @@ class ListState<T, F> extends Equatable {
   }) {
     return ListState<T, F>(
       items: items ?? this.items,
-      hasReachedMax: hasReachedMax ?? this.hasReachedMax ?? true,
+      hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       filter: filter ?? this.filter,
       extra: extra ?? this.extra,
-      loading: loading ?? false,
-      initialized: initialized ?? true,
-      error: error ?? "",
+      loading: loading,
+      initialized: initialized,
+      error: error,
     );
   }
 

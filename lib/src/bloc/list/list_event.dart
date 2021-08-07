@@ -74,7 +74,7 @@ class RemoveItems<T> extends ListEvent {
 /// [F] type of filter
 class FetchItems<F> extends ListEvent {
   // filter
-  final F filter;
+  final F? filter;
   // clear and fetch from begining
   final bool clear;
 

@@ -4,17 +4,27 @@ import 'package:simple_list_bloc/simple_list_bloc.dart';
 import 'package:simple_list_bloc/src/bloc/list/list_bloc.dart';
 import 'package:simple_list_bloc/src/bloc/list/list_state.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/mockito.dart';
+import 'package:mocktail/mocktail.dart';
 
-class MockListBloc extends MockBloc implements ListBloc<int, bool> {}
+class MockListBloc extends MockBloc<ListEvent, ListState<int, bool>> implements ListBloc<int, bool> {}
+
+class MockListEvent extends ListEvent {
+  @override
+  List<Object?> get props => throw UnimplementedError();
+}
 
 void main() {
-  MockListBloc bloc;
-  ListSelectionBloc<int> selectionBloc;
+  MockListBloc? bloc;
+  ListSelectionBloc<int>? selectionBloc;
 
   setUp(() {
     bloc = MockListBloc();
     selectionBloc = ListSelectionBloc();
+  });
+
+  setUpAll(() {
+    registerFallbackValue<ListState<int, bool>>(ListState<int, bool>(items: []));
+    registerFallbackValue<ListEvent>(MockListEvent());
   });
 
   Widget buildView() {
@@ -24,9 +34,9 @@ void main() {
           bloc: bloc,
           onSuccess: (context) => ListView.builder(
             itemBuilder: (context, index) {
-              var item = bloc.state.items[index];
+              int item = bloc!.state.items[index];
               return SelectionStreamBuilder(
-                builder: (context, state, target, selected) {
+                builder: (context, state, dynamic target, selected) {
                   return ListTile(
                     title: Text("$index", key: Key("item_$index")),
                     trailing: selected ? Text("$selected", key: Key("selected_$index")) : null,
@@ -36,7 +46,7 @@ void main() {
                 selectionBloc: selectionBloc,
               );
             },
-            itemCount: bloc.state.items.length,
+            itemCount: bloc!.state.items.length,
           ),
         ),
       ),
@@ -44,7 +54,7 @@ void main() {
   }
 
   testWidgets('should not render any select when start', (WidgetTester tester) async {
-    when(bloc.state).thenReturn(ListState(items: [0, 1, 2, 3]));
+    when(() => bloc!.state).thenReturn(ListState<int, bool>(items: [0, 1, 2, 3]));
 
     await tester.pumpWidget(buildView());
 
@@ -62,16 +72,16 @@ void main() {
   });
 
   testWidgets('should not render any select when selected item was not in list', (WidgetTester tester) async {
-    when(bloc.state).thenReturn(ListState(items: [0, 1, 2, 3]));
+    when(() => bloc!.state).thenReturn(ListState<int, bool>(items: [0, 1, 2, 3]));
 
     await tester.pumpWidget(buildView());
 
-    selectionBloc.selectItems([5]);
+    selectionBloc!.selectItems([5]);
     await tester.runAsync(() => Future.delayed(Duration(milliseconds: 200)));
     await tester.pump(Duration(milliseconds: 100));
 
-    expect(selectionBloc.items.length, equals(1));
-    expect(selectionBloc.items[0], equals(5));
+    expect(selectionBloc!.items.length, equals(1));
+    expect(selectionBloc!.items[0], equals(5));
 
     expect(find.byKey(Key("item_0")), findsOneWidget);
     expect(find.byKey(Key("selected_0")), findsNothing);
@@ -87,17 +97,17 @@ void main() {
   });
 
   testWidgets('should render selected on item added into selection', (WidgetTester tester) async {
-    when(bloc.state).thenReturn(ListState(items: [0, 1, 2, 3]));
+    when(() => bloc!.state).thenReturn(ListState<int, bool>(items: [0, 1, 2, 3]));
 
     await tester.pumpWidget(buildView());
 
-    selectionBloc.selectItems([2, 3]);
+    selectionBloc!.selectItems([2, 3]);
     await tester.runAsync(() => Future.delayed(Duration(milliseconds: 200)));
     await tester.pump(Duration(milliseconds: 100));
 
-    expect(selectionBloc.items.length, equals(2));
-    expect(selectionBloc.items[0], equals(2));
-    expect(selectionBloc.items[1], equals(3));
+    expect(selectionBloc!.items.length, equals(2));
+    expect(selectionBloc!.items[0], equals(2));
+    expect(selectionBloc!.items[1], equals(3));
 
     expect(find.byKey(Key("item_0")), findsOneWidget);
     expect(find.byKey(Key("selected_0")), findsNothing);
@@ -111,7 +121,7 @@ void main() {
     expect(find.byKey(Key("item_3")), findsOneWidget);
     expect(find.byKey(Key("selected_3")), findsOneWidget);
 
-    selectionBloc.toggleItem(2);
+    selectionBloc!.toggleItem(2);
     await tester.runAsync(() => Future.delayed(Duration(milliseconds: 100)));
     await tester.pump(Duration(milliseconds: 100));
 
@@ -129,7 +139,7 @@ void main() {
   });
 
   tearDown(() {
-    bloc.close();
-    selectionBloc.close();
+    bloc!.close();
+    selectionBloc!.close();
   });
 }
