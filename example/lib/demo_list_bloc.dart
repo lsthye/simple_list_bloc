@@ -93,12 +93,12 @@ class DemoModel extends Equatable {
 /// List bloc to demostrate filter and pagination
 /// view count = 20, event debounce = 50ms
 class DemoListBloc extends ListBloc<DemoModel, String> {
-  DemoListBloc() : super(viewCount: 20, debounce: 50, debug: true);
+  DemoListBloc() : super(viewCount: 20, debounce: 50, debug: true, state: ListState(filter: ""));
 
   @override
   Future<List<DemoModel>> fetchItems(filter, int skip, int count) async {
     /// delay to show loading indicator
-    if (filter != null && filter.isNotEmpty) {
+    if (filter.isNotEmpty) {
       // filter list
       List<DemoModel> filteredList = [];
       var f = filter.toLowerCase();

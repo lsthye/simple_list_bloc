@@ -23,7 +23,7 @@ void main() {
   });
 
   setUpAll(() {
-    registerFallbackValue<ListState<int, bool>>(ListState<int, bool>(items: []));
+    registerFallbackValue<ListState<int, bool>>(ListState<int, bool>(filter: false));
     registerFallbackValue<ListEvent>(MockListEvent());
   });
 
@@ -54,7 +54,7 @@ void main() {
   }
 
   testWidgets('should not render any select when start', (WidgetTester tester) async {
-    when(() => bloc!.state).thenReturn(ListState<int, bool>(items: [0, 1, 2, 3]));
+    when(() => bloc!.state).thenReturn(ListState<int, bool>(items: [0, 1, 2, 3], filter: false));
 
     await tester.pumpWidget(buildView());
 
@@ -72,7 +72,7 @@ void main() {
   });
 
   testWidgets('should not render any select when selected item was not in list', (WidgetTester tester) async {
-    when(() => bloc!.state).thenReturn(ListState<int, bool>(items: [0, 1, 2, 3]));
+    when(() => bloc!.state).thenReturn(ListState<int, bool>(items: [0, 1, 2, 3], filter: false));
 
     await tester.pumpWidget(buildView());
 
@@ -97,7 +97,7 @@ void main() {
   });
 
   testWidgets('should render selected on item added into selection', (WidgetTester tester) async {
-    when(() => bloc!.state).thenReturn(ListState<int, bool>(items: [0, 1, 2, 3]));
+    when(() => bloc!.state).thenReturn(ListState<int, bool>(items: [0, 1, 2, 3], filter: false));
 
     await tester.pumpWidget(buildView());
 

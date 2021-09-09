@@ -29,7 +29,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
   ListEvent? lastEvent;
 
   ListBloc({
-    ListState<T, F>? state,
+    required ListState<T, F> state,
     int viewCount = 20,
     int debounce = 200,
     bool allowDuplicate = false,
@@ -38,7 +38,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
         this._viewCount = viewCount,
         this._allowDuplicate = allowDuplicate,
         this._debug = debug,
-        super(state ?? ListState<T, F>(items: []));
+        super(state);
 
   @override
   void onEvent(ListEvent event) {
@@ -52,7 +52,7 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
 
   /// Override this to handle fetch
   @protected
-  Future<List<T>> fetchItems(F? filter, int skip, int count) async => [];
+  Future<List<T>> fetchItems(F filter, int skip, int count) async => [];
 
   /// Override this to handle remove
   @protected
@@ -163,8 +163,15 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
       });
       result = filter;
     }
-    var items = await sortItems(state.items + result, newItem: result);
-    return state.copyWith(items: List<T>.from(items));
+    List<T> sorted;
+    List<T> existing = state.items.toList();
+    if (existing.length > 0) {
+      existing.addAll(result);
+      sorted = await sortItems(existing, newItem: result);
+    } else {
+      sorted = await sortItems(result, newItem: result);
+    }
+    return state.copyWith(items: List<T>.from(sorted));
   }
 
   /// Remove item from list
@@ -184,9 +191,17 @@ class ListBloc<T, F> extends Bloc<ListEvent, ListState<T, F>> {
   /// Fetch data
   @protected
   Future<ListState<T, F>> handleFetchEvent(FetchItems<F> event) async {
-    final items = await fetchItems(event.filter, event.clear ? 0 : state.items.length, _viewCount);
+    List<T> items = await fetchItems(event.filter ?? state.filter, event.clear ? 0 : state.items.length, _viewCount);
+    List<T> sorted;
+    List<T> existing = state.items.toList();
+    if (!event.clear && existing.length > 0) {
+      existing.addAll(items);
+      sorted = await sortItems(existing);
+    } else {
+      sorted = await sortItems(items);
+    }
     return state.copyWith(
-      items: await sortItems(event.clear ? items : state.items + items),
+      items: sorted,
       hasReachedMax: _viewCount == -1 || items.isEmpty
           ? true
           : event.clear

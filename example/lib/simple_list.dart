@@ -17,7 +17,7 @@ class SimpleListDataModel extends Equatable {
 
 /// List bloc
 class SimpleListBloc extends ListBloc<SimpleListDataModel, dynamic> {
-  SimpleListBloc() : super(viewCount: -1, debounce: 50, debug: true);
+  SimpleListBloc() : super(viewCount: -1, debounce: 50, debug: true, state: ListState(filter: ""));
 
   @override
   Future<List<SimpleListDataModel>> fetchItems(filter, int skip, int count) async {

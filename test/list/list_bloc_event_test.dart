@@ -5,21 +5,21 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   group('publish state event', () {
     test('should be equal when both event have same state', () {
-      var state = ListState(items: []);
+      var state = ListState(filter: false);
       var first = PublishState(state);
       var second = PublishState(state);
       expect(first, equals(second));
     });
     test('should not be equal when both event have different state', () {
-      var first = PublishState(ListState(items: []));
-      var second = PublishState(ListState(items: []));
+      var first = PublishState(ListState(filter: false));
+      var second = PublishState(ListState(filter: false));
       expect(first, isNot(equals(second)));
     });
     test('toString should contain runtime type and state value', () {
-      var state = ListState<int, bool>(items: []);
+      var state = ListState<int, bool>(filter: false);
       var event = PublishState<int, bool>(state);
       expect(event.toString(),
-          'PublishState<int, bool> state = ListState<int, bool> { uuid: ${state.uuid}, items: 0, hasReachedMax: false, filter: null, extra: null, loading: false, initialized: false, error:  }');
+          'PublishState<int, bool> state = ListState<int, bool> { uuid: ${state.uuid}, items: 0, hasReachedMax: false, filter: false, extra: null, loading: false, initialized: false, error:  }');
     });
   });
 

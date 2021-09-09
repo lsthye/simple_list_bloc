@@ -19,7 +19,7 @@ void main() {
   setUp(() => bloc = MockListBloc());
 
   setUpAll(() {
-    registerFallbackValue<ListState<int, bool>>(ListState<int, bool>(items: []));
+    registerFallbackValue<ListState<int, bool>>(ListState<int, bool>(filter: false));
     registerFallbackValue<ListEvent>(MockListEvent());
   });
 
@@ -51,7 +51,7 @@ void main() {
   }
 
   testWidgets('should diplay init widget when bloc is in inital state', (WidgetTester tester) async {
-    when(() => bloc!.state).thenReturn(ListState(items: []));
+    when(() => bloc!.state).thenReturn(ListState(filter: false));
 
     await tester.pumpWidget(buildView());
 
@@ -66,7 +66,7 @@ void main() {
   });
 
   testWidgets('should diplay loading widget when bloc is loading', (WidgetTester tester) async {
-    when(() => bloc!.state).thenReturn(ListState(items: [], initialized: true, loading: true));
+    when(() => bloc!.state).thenReturn(ListState(initialized: true, loading: true, filter: false));
 
     await tester.pumpWidget(buildView());
 
@@ -81,7 +81,7 @@ void main() {
   });
 
   testWidgets('should diplay loading widget and success widget when bloc is loading with items', (WidgetTester tester) async {
-    when(() => bloc!.state).thenReturn(ListState(items: [1, 2, 3], initialized: true, loading: true));
+    when(() => bloc!.state).thenReturn(ListState(items: [1, 2, 3], initialized: true, loading: true, filter: false));
 
     await tester.pumpWidget(buildView());
 
@@ -96,7 +96,7 @@ void main() {
   });
 
   testWidgets('should diplay empty widget when bloc is loaded with empty array', (WidgetTester tester) async {
-    when(() => bloc!.state).thenReturn(ListState(items: [], initialized: true, loading: false));
+    when(() => bloc!.state).thenReturn(ListState(initialized: true, loading: false, filter: false));
 
     await tester.pumpWidget(buildView());
 
@@ -111,7 +111,7 @@ void main() {
   });
 
   testWidgets('should diplay error widget when bloc has error message', (WidgetTester tester) async {
-    when(() => bloc!.state).thenReturn(ListState(items: [], initialized: true, loading: false, error: "err"));
+    when(() => bloc!.state).thenReturn(ListState(initialized: true, loading: false, error: "err", filter: false));
 
     await tester.pumpWidget(buildView());
 
@@ -127,7 +127,7 @@ void main() {
   });
 
   testWidgets('should diplay error widget and success widget when bloc has error message and items', (WidgetTester tester) async {
-    when(() => bloc!.state).thenReturn(ListState(items: [1, 2, 3], initialized: true, loading: false, error: "err"));
+    when(() => bloc!.state).thenReturn(ListState(items: [1, 2, 3], initialized: true, loading: false, error: "err", filter: false));
 
     await tester.pumpWidget(buildView());
 
@@ -143,7 +143,7 @@ void main() {
   });
 
   testWidgets('should diplay success widget when builder does not have onError builder', (WidgetTester tester) async {
-    when(() => bloc!.state).thenReturn(ListState(items: [1, 2, 3], initialized: true, loading: false, error: "err"));
+    when(() => bloc!.state).thenReturn(ListState(items: [1, 2, 3], initialized: true, loading: false, error: "err", filter: false));
 
     await tester.pumpWidget(buildSuccessOnlyView());
 

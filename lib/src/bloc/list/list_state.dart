@@ -11,7 +11,7 @@ class ListState<T, F> extends Equatable {
   // Actual data
   final List<T> items;
   // Filter object
-  final F? filter;
+  final F filter;
   // Indicate has reach end of file
   final bool hasReachedMax;
   // Optional data to store
@@ -24,9 +24,9 @@ class ListState<T, F> extends Equatable {
   final String error;
 
   ListState({
-    required this.items,
+    required this.filter,
+    this.items = const [],
     this.hasReachedMax = false,
-    this.filter,
     this.extra,
     this.initialized = false,
     this.loading = false,

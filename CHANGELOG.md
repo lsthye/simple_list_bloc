@@ -1,3 +1,7 @@
+## v0.3.0 - 2021-09-09
+
+* change state's `filter` parameter to non-nullable
+
 ## v0.2.0 - 2021-08-07
 
 * update dependency for flutter 2.2.3
