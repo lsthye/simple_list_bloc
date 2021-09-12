@@ -31,7 +31,7 @@ class ListSelectionBloc<T> extends Cubit<SelectionState<T>> {
   /// [list] all item list
   void endMultiSelect({T? target, List<T>? list}) {
     if (target == null || list == null) {
-      emit(state.copyWith(selecting: false));
+      emit(state.copyWith(selecting: false, bulk: false));
     } else {
       List<T> selected = [];
       var startTarget = state.startItem;
@@ -50,16 +50,16 @@ class ListSelectionBloc<T> extends Cubit<SelectionState<T>> {
           break;
         }
       }
-      _selectItems(selected);
+      _selectItems(selected, bulk: false);
     }
   }
 
   /// clear all selection and end selection mode
   void clearSelection({bool endSelectionMode = true}) {
     if (endSelectionMode) {
-      emit(state.copyWithMap(selecting: false, selectedItems: {}));
+      emit(state.copyWithMap(selecting: false, selectedItems: {}, bulk: false));
     } else {
-      emit(state.copyWithMap(selectedItems: {}));
+      emit(state.copyWithMap(selectedItems: {}, bulk: false));
     }
   }
 
@@ -78,7 +78,7 @@ class ListSelectionBloc<T> extends Cubit<SelectionState<T>> {
   void selectItems(List<T> items) => _selectItems(items, startItem: state.startItem);
 
   /// add items to selection
-  void _selectItems(List<T> items, {T? startItem}) {
+  void _selectItems(List<T> items, {T? startItem, bool? bulk}) {
     List<T> toAdd = items.toList();
     if (state.maxSelection > 0) {
       while ((toAdd.length + state.selectedItems.length) > state.maxSelection && toAdd.length > 0) {
@@ -90,7 +90,7 @@ class ListSelectionBloc<T> extends Cubit<SelectionState<T>> {
       toAdd.forEach((element) {
         tmp[element] = true;
       });
-      emit(state.copyWithMap(selectedItems: tmp, startItem: startItem));
+      emit(state.copyWithMap(selectedItems: tmp, startItem: startItem, bulk: bulk));
     }
   }
 

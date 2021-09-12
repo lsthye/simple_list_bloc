@@ -1,3 +1,7 @@
+## v0.3.1 - 2021-09-12
+
+* `bulk` select flag should set to false after call `endMultiSelect` or `clearSelection`
+
 ## v0.3.0 - 2021-09-09
 
 * change state's `filter` parameter to non-nullable

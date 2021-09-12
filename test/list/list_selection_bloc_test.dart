@@ -174,6 +174,7 @@ void main() {
       verify: (bloc) async {
         expect(bloc.items.length, equals(0));
         expect(bloc.state.selecting, equals(true));
+        expect(bloc.state.bulk, equals(true));
         expect(bloc.state.startItem, equals(3));
       },
     );
@@ -190,6 +191,7 @@ void main() {
       verify: (bloc) async {
         expect(bloc.items, equals([1, 2, 3, 4, 5]));
         expect(bloc.state.selecting, equals(true));
+        expect(bloc.state.bulk, equals(true));
         expect(bloc.state.startItem, equals(3));
       },
     );
@@ -206,6 +208,7 @@ void main() {
       verify: (bloc) async {
         expect(bloc.items, equals([3, 4, 5, 6, 7]));
         expect(bloc.state.selecting, equals(true));
+        expect(bloc.state.bulk, equals(false));
         expect(bloc.state.startItem, equals(null)); // remove start flag after end select
       },
     );
@@ -222,6 +225,7 @@ void main() {
       verify: (bloc) async {
         expect(bloc.items, equals([3, 4, 5, 6, 7]));
         expect(bloc.state.selecting, equals(true));
+        expect(bloc.state.bulk, equals(false));
         expect(bloc.state.startItem, equals(null)); // remove start flag after end select
       },
     );
@@ -240,6 +244,7 @@ void main() {
       verify: (bloc) async {
         expect(bloc.items, equals([1, 2, 3, 4, 5, 6, 7]));
         expect(bloc.state.selecting, equals(true));
+        expect(bloc.state.bulk, equals(false));
         expect(bloc.state.startItem, equals(null)); // remove start flag after end select
       },
     );
