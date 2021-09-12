@@ -1,3 +1,7 @@
+## v0.3.2 - 2021-09-12
+
+* fix `startItem` change did not trigger builder
+
 ## v0.3.1 - 2021-09-12
 
 * `bulk` select flag should set to false after call `endMultiSelect` or `clearSelection`

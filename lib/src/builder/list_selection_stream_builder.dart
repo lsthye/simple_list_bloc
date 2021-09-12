@@ -23,7 +23,7 @@ class SelectionStreamBuilder<T> extends BlocBuilderBase<ListSelectionBloc, Selec
   }) : super(key: key, bloc: selectionBloc);
 
   @override
-  get buildWhen => (a, b) => a.selectedItems.containsKey(target) != b.selectedItems.containsKey(target);
+  get buildWhen => (a, b) => a.selectedItems.containsKey(target) != b.selectedItems.containsKey(target) || a.startItem != b.startItem;
 
   @override
   Widget build(BuildContext context, SelectionState state) {
